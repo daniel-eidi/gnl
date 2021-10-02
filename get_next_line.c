@@ -6,7 +6,7 @@
 /*   By: daeidi-h <daeidi-h@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/15 16:20:44 by daeidi-h          #+#    #+#             */
-/*   Updated: 2021/10/02 14:43:26 by daeidi-h         ###   ########.fr       */
+/*   Updated: 2021/10/02 16:02:01 by daeidi-h         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,12 +45,9 @@ static char	*save_line(int r, char *last_line)
 	char	*temp;
 	char	*currentline;
 
-	if (r == 0 && *last_line == '\0')
+	if (r == 0 && (!ft_strlen(last_line) || last_line == NULL))
 	{
-		free(last_line);
-		last_line = NULL;
 		return (NULL);
-
 	}
 	else
 	{
@@ -77,7 +74,7 @@ static char	*load(char *last_line, char *buf, int fd)
 	&& (r > 0))
 	{	
 		r = read(fd, buf, BUFFER_SIZE);
-		if (r <= 0)
+		if (r < 0)
 			break ;
 		buf[r] = '\0';
 		temp = ft_strjoin(last_line, buf);

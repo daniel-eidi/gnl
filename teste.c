@@ -12,6 +12,7 @@ int	main()
 	fd = open("files/43_no_nl", O_RDWR|O_CREAT);
 	line = get_next_line(fd);
 	printf("print: %s\n", line);
+	free(line);
 	line = get_next_line(fd);
 	printf("print: %s\n", line);
 	line = get_next_line(fd);

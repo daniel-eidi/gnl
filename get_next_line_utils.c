@@ -6,37 +6,32 @@
 /*   By: daeidi-h <daeidi-h@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/01 15:35:10 by daeidi-h          #+#    #+#             */
-/*   Updated: 2021/10/02 15:46:34 by daeidi-h         ###   ########.fr       */
+/*   Updated: 2021/10/03 16:13:56 by daeidi-h         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*ft_strjoin(char const *s1, char const *s2)
+char	*ft_strjoin(const char *s1, const char *s2)
 {
-	char			*new;
-	int				i;
-	int				j;
+	char	*join;
+	size_t	s1_len;
+	size_t	s2_len;
 
-	i = 0;
-	j = 0;
 	if (!s1 || !s2)
-		return (malloc(0));
-	new = (char *) malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
-	if (new == NULL)
 		return (NULL);
-	while (s1[i] != '\0')
-	{
-		new[i] = s1[i];
-		i++;
-	}
-	while (s2[j] != '\0')
-	{
-		new[i + j] = s2[j];
-		j++;
-	}
-	new[i + j] = '\0';
-	return (new);
+	s1_len = 0;
+	while (s1[s1_len])
+		s1_len++;
+	s2_len = 0;
+	while (s2[s2_len])
+		s2_len++;
+	join = (char *) malloc(s1_len + s2_len + 1);
+	if (!join)
+		return (NULL);
+	ft_strlcpy(join, (char *) s1, s1_len + 1);
+	ft_strlcpy(join + s1_len, (char *) s2, s2_len + 1);
+	return (join);
 }
 
 char	*ft_substr(char const *s, unsigned int start, \
@@ -83,33 +78,6 @@ size_t	ft_strlcpy(char *dst, const char *src, size_t n)
 	return (len);
 }
 
-size_t	ft_strlcat(char *dst, const char *src, size_t n)
-{	
-	size_t	i;
-	size_t	j;
-	size_t	len;
-	char	*cat;
-	char	*s;
-
-	s = (char *)src;
-	cat = (char *)dst;
-	len = ft_strlen(s);
-	i = 0;
-	j = 0;
-	if (n == 0)
-		return (len);
-	while (i < n && cat[i] != '\0')
-		i++;
-	while ((j + i) < (n - 1) && s[j] != '\0')
-	{
-		cat[i + j] = s[j];
-		j++;
-	}
-	if (i < n)
-		cat[i + j] = '\0';
-	return (len + i);
-}
-
 char	*ft_strdup(const char *s)
 {
 	char	*new;
@@ -123,4 +91,22 @@ char	*ft_strdup(const char *s)
 		return (NULL);
 	ft_strlcpy(new, ori, len + 1);
 	return (new);
+}
+
+char	*ft_strchr(const char *s, int c)
+{	
+	int				i;
+	unsigned char	chr;
+
+	i = 0;
+	chr = (unsigned char) c;
+	while (s[i])
+	{
+		if (s[i] == chr)
+			return ((char *)s + i);
+		i++;
+	}
+	if (!chr && s[i] == '\0')
+		return ((char *)s + i);
+	return (NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: daeidi-h <daeidi-h@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/15 16:20:44 by daeidi-h          #+#    #+#             */
-/*   Updated: 2021/10/03 13:08:23 by daeidi-h         ###   ########.fr       */
+/*   Updated: 2021/10/03 18:30:29 by daeidi-h         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,72 +22,56 @@ size_t	ft_strlen(const char *s)
 	return (i);
 }
 
-char	*ft_strchr(const char *s, int c)
-{	
-	int				i;
-	unsigned char	chr;
-
-	i = 0;
-	chr = (unsigned char) c;
-	while (s[i])
-	{
-		if (s[i] == chr)
-			return ((char *)s + i);
-		i++;
-	}
-	if (!chr && s[i] == '\0')
-		return ((char *)s + i);
-	return (NULL);
-}
-
 static void	free_ptr(char **str)
 {
 	free (*str);
 	*str = NULL;
 }
 
-static char	*save_line(int r, char *last_line, char *currentline)
+static char	*save_line(int r, char **last_line, char **currentline)
 {
 	char	*temp;
 
-	if (r <= 0 && (!ft_strlen(last_line) || last_line == NULL))
+	if (r <= 0 && (!ft_strlen(*last_line) || *last_line == NULL))
 	{
+		free_ptr(last_line);
 		return (NULL);
 	}
-	else if (!ft_strchr(last_line, '\n') && *last_line != '\0')
+	else if (!ft_strchr(*last_line, '\n') && !last_line)
 	{
-		currentline = ft_strdup(last_line);
-		free_ptr(&last_line);
+		*currentline = ft_strdup(*last_line);
+		free_ptr(last_line);
 	}
 	else
 	{
-		currentline = ft_substr(last_line, 0, (ft_strchr(last_line, '\n') \
-		+ 1 - last_line));
-		temp = ft_substr(last_line, (ft_strchr(last_line, '\n') \
-		+ 1 - last_line), ft_strlen(last_line));
-		free_ptr(&last_line);
-		last_line = ft_strdup(temp);
+		temp = *last_line;
+		*currentline = ft_substr(temp, 0, (ft_strchr(temp, '\n') \
+		+ 1 - *last_line));
+		*last_line = ft_substr(temp, (ft_strchr(temp, '\n') \
+		+ 1 - temp), ft_strlen(temp));
 		free_ptr(&temp);
 	}
-	return (currentline);
+	return (*currentline);
 }
 
-static char	*load(char *last_line, char *buf, int fd, char *current_line)
+static char	*load(char **last_line, char **buf, int fd, char **current_line)
 {
 	char	*temp;
 	int		r;
 
 	r = 1;
-	while (!ft_strchr(last_line, '\n') \
+	if (!*last_line)
+		*last_line = ft_strdup("");
+	while (!ft_strchr(*last_line, '\n') \
 	&& (r > 0))
 	{	
-		r = read(fd, buf, BUFFER_SIZE);
-		buf[r] = '\0';
-		temp = last_line;
-		last_line = ft_strjoin(temp, buf);
+		r = read(fd, *buf, BUFFER_SIZE);
+		(*buf)[r] = '\0';
+		temp = *last_line;
+		*last_line = ft_strjoin(temp, *buf);
 		free_ptr(&temp);
 	}
-	free_ptr(&buf);
+	free_ptr(buf);
 	return (save_line(r, last_line, current_line));
 }
 
@@ -101,17 +85,13 @@ char	*get_next_line(int fd)
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	printf("%p\n", &buf);
-	printf("%p\n", &last_line);
 	if (!buf)
 		return (NULL);
-	if (!last_line)
-		last_line = ft_strdup("");
-	printf("%p\n", last_line);
 	if (read(fd, buf, 0) < 0)
 	{
 		free_ptr(&buf);
 		return (NULL);
 	}
-	return (load(last_line, buf, fd, current_line));
+	current_line = load(&last_line, &buf, fd, &current_line);
+	return (current_line);
 }
